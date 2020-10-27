@@ -9,8 +9,7 @@
 
 TBitField::TBitField(int len) : BitLen(len)
 {
-    if (len < 0)
-        throw - 1;
+    if (len < 0) throw - 1;
     TELEM size = sizeof(TELEM) * 8;
     MemLen = (len + size - 1) / size;
     pMem = new TELEM[MemLen];
@@ -32,7 +31,6 @@ TBitField::~TBitField()
     if (pMem != NULL)
     {
         delete pMem;
-        pMem = NULL;
     }
 }
 
