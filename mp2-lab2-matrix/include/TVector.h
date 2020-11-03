@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <iostream>
+#include <fstream>
 //#include <iomanip> // выравнивание в cout
 
 using namespace std;
@@ -58,7 +59,8 @@ TVector<ValType>::TVector(int s, int si)
     if (s < 0 || si < 0 || s > MAX_VECTOR_SIZE) throw - 1;
     Size = s;
     StartIndex = si;
-    pVector = new ValType[Size];
+    if (s) pVector = new ValType[Size];
+    else pVector = nullptr;
     for (int i = 0; i < Size; i++)
         pVector[i] = 0;
 } /*-------------------------------------------------------------------------*/
@@ -76,7 +78,7 @@ TVector<ValType>::TVector(const TVector<ValType>& v)
 template <class ValType>
 TVector<ValType>::~TVector()
 {
-    if (pVector != NULL) delete[]pVector;
+    if (pVector) delete[]pVector;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // доступ
@@ -153,7 +155,7 @@ TVector<ValType> TVector<ValType>::operator*(const ValType& val)
 template <class ValType> // сложение
 TVector<ValType> TVector<ValType>::operator+(const TVector<ValType>& v)
 {
-    if (Size != v.Size) throw - 1;
+    if (Size != v.Size || StartIndex != v.StartIndex) throw - 1;
     TVector<ValType> res(v);
     for (int i = 0; i < Size; i++)
         res.pVector[i] = pVector[i] + v.pVector[i];
@@ -163,7 +165,7 @@ TVector<ValType> TVector<ValType>::operator+(const TVector<ValType>& v)
 template <class ValType> // вычитание
 TVector<ValType> TVector<ValType>::operator-(const TVector<ValType>& v)
 {
-    if (Size != v.Size) throw - 1;
+    if (Size != v.Size || StartIndex != v.StartIndex) throw - 1;
     TVector<ValType> res(v);
     for (int i = 0; i < Size; i++)
         res.pVector[i] = pVector[i] - v.pVector[i];
@@ -173,7 +175,7 @@ TVector<ValType> TVector<ValType>::operator-(const TVector<ValType>& v)
 template <class ValType> // скалярное произведение
 ValType TVector<ValType>::operator*(const TVector<ValType>& v)
 {
-    if (Size != v.Size) throw - 1;
+    if (Size != v.Size || StartIndex != v.StartIndex) throw - 1;
     ValType sum = 0;
     for (int i = 0; i < Size; i++)
         sum += pVector[i] * v.pVector[i];

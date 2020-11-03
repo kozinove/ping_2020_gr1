@@ -43,6 +43,17 @@ public:
       }
     return out;
   }
+  friend ifstream& operator>> (ifstream& in, TMatrix& mt)
+  {
+      int bin;
+      for (int i = 0; i < mt.Size; i++)
+      {
+          for (int j = 0; j < i; j++)
+              in >> bin;
+          in >> mt.pVector[i];
+      }
+      return in;
+  }
 };
 
 template <class ValType>
@@ -91,20 +102,14 @@ template <class ValType> // сложение
 TMatrix<ValType> TMatrix<ValType>::operator+(const TMatrix<ValType> &mt)
 {
     if (Size != mt.Size) throw - 1;
-    TMatrix<ValType> res(mt);
-    for (int i = 0; i < Size; i++)
-        res.pVector[i] = mt.pVector[i] + pVector[i];
-    return res;
+    return TVector <TVector <ValType>>::operator+(mt);
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // вычитание
 TMatrix<ValType> TMatrix<ValType>::operator-(const TMatrix<ValType> &mt)
 {
     if (Size != mt.Size) throw - 1;
-    TMatrix<ValType> res(mt);
-    for (int i = 0; i < Size; i++)
-        res.pVector[i] = pVector[i] - mt.pVector[i];
-    return res;
+    return TVector <TVector <ValType>>::operator-(mt);
 } /*-------------------------------------------------------------------------*/
 
 // TVector О3 Л2 П4 С6
