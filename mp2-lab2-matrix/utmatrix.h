@@ -53,6 +53,8 @@ public:
   }
   friend ostream& operator<<(ostream &out, const TVector &v)
   {
+    for (int i = 0; i < v.StartIndex; i++)
+      out << 0 << ' ';
     for (int i = 0; i < v.Size; i++)
       out << v.pVector[i] << ' ';
     return out;
@@ -163,7 +165,7 @@ TVector<ValType> TVector<ValType>::operator*(const ValType &val)
 template <class ValType> // сложение
 TVector<ValType> TVector<ValType>::operator+(const TVector<ValType> &v)
 {
-    if (Size != v.Size)
+    if (Size != v.Size || StartIndex != v.StartIndex)
         throw "Different_Size";
     TVector tmp(Size, StartIndex);
     for (int i = 0; i < Size; i++)
@@ -174,7 +176,7 @@ TVector<ValType> TVector<ValType>::operator+(const TVector<ValType> &v)
 template <class ValType> // вычитание
 TVector<ValType> TVector<ValType>::operator-(const TVector<ValType> &v)
 {
-    if (Size != v.Size)
+    if (Size != v.Size || StartIndex != v.StartIndex)
         throw "Different_Size";
     TVector tmp(Size, StartIndex);
     for (int i = 0; i < Size; i++)
@@ -185,7 +187,7 @@ TVector<ValType> TVector<ValType>::operator-(const TVector<ValType> &v)
 template <class ValType> // скалярное произведение
 ValType TVector<ValType>::operator*(const TVector<ValType> &v)
 {
-    if (Size != v.Size)
+    if (Size != v.Size || StartIndex != v.StartIndex)
         throw "Different_Size";
     ValType n = 0;
     for (int i = 0; i < Size; i++)
