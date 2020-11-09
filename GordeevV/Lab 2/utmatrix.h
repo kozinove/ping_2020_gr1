@@ -48,14 +48,16 @@ public:
   // ввод-вывод
   friend istream& operator>>(istream &in, TVector &v)
   {
-    for (int i = 0; i < v.Size; i++)
-      in >> v.pVector[i];
-    return in;
+      for (int i = 0; i < v.Size; i++)
+          in >> v.pVector[i];
+      return in;
   }
   friend ostream& operator<<(ostream &out, const TVector &v)
   {
+      for (int i = 0; i < v.StartIndex; i++)
+          out << 0 << '\t';
     for (int i = 0; i < v.Size; i++)
-      out << v.pVector[i] << ' ';
+      out << v.pVector[i] << '\t';
     return out;
   }
 };
@@ -66,9 +68,10 @@ TVector<ValType>::TVector(int s, int si)
     if (s < 0 || si < 0 || s> MAX_VECTOR_SIZE || si > MAX_VECTOR_SIZE) {
         throw "Wrong input parametrs";
     }
-    pVector = new ValType[s];
     Size = s;
     StartIndex = si;
+    pVector = new ValType[Size];
+    
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> //конструктор копирования
@@ -86,7 +89,6 @@ TVector<ValType>::~TVector()
 {
     if(pVector != NULL)
         delete[] pVector;
-    pVector = NULL;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // доступ
