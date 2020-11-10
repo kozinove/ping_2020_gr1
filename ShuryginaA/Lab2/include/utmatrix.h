@@ -217,6 +217,8 @@ public:
 	friend ostream& operator<<(ostream& out, const TMatrix& mt)
 	{
 		for (int i = 0; i < mt.Size; i++)
+			for (int j = 0; j < i; j++)
+				out << 0 << " " << endl;
 			out << mt.pVector[i] << endl;
 		return out;
 	}
@@ -246,7 +248,7 @@ template <class ValType> // сравнение
 bool TMatrix<ValType>::operator==(const TMatrix<ValType>& mt) const
 {
 	if (Size != mt.Size)
-		return true;
+		return false;
 	for (int i = 0; i < Size - StartIndex; i++)
 		if (pVector[i] != mt.pVector[i])
 			return false;
