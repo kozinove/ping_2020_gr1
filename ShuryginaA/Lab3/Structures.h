@@ -99,7 +99,7 @@ class TQueue : public TStruct<T>
     int last;
     int next(int ind) { return (ind + 1) % N; };
 public:
-    TQueue(int _N = 10);
+    TQueue(int _N = 100);
     TQueue(const TQueue& v);
     ~TQueue();
     void push(T v);
@@ -188,7 +188,7 @@ public:
     int getVal() { return val; }
     string getS() { return s; }
     bool ifNumb(char c);
-    int prior(string c);
+    int prior(Lexems tmp);
     TQueue<Lexems*>* separat(string _s);
     TQueue<Lexems*>* revPolNot(TQueue<Lexems*>* q);
     TQueue<Lexems*>* separatFull(string _s);
@@ -211,31 +211,33 @@ inline bool Lexems::ifNumb(char c)
 {
     if ((c >= '0') && (c <= '9'))
         return true;
-    if ((c != '+') && (c != '-') && (c != '(') && (c != ')') &&(c!=' ')&& (c != '*'))
+    if ((c != '+') && (c != '-') && (c != '(') && (c != ')') &&(c!=' ')&& (c != '*') && (c != '/'))
         throw -1;
     return false;
 }
-inline int Lexems::prior(string c)
+inline int Lexems::prior(Lexems tmp)
 {
-    if (c == " ")
+    if (tmp.getS() == " ")
         return -1;
-    if (c == "(" || c == ")")
+    if (tmp.getS() == "(" || tmp.getS() == ")")
         return 0;
-    if( c == "*" || c == "/")
-    return 1;
-    else /*(c=='-'||c=='+')*/
+    if (tmp.getS() == "*" || tmp.getS() == "/")
+        return 1;
+    else if (tmp.getS() == "-" || tmp.getS() == "+")
         return 2;
+    else throw - 1;
 
     
 }
 TQueue<Lexems*>* Lexems::separat(string _s)
 {
     string str;
+    char c;
     TQueue<Lexems*>* q = new TQueue<Lexems*>;
     State st = q0;
     for (int i = 0;i < _s.length();i++)
     {
-        char c = _s[i];
+        c = _s[i];
         if (st == q0)
         {   
             str = c;
@@ -249,75 +251,97 @@ TQueue<Lexems*>* Lexems::separat(string _s)
         {
             if (st == q1) {
                 if (ifNumb(c))
-                {
                     str += c;
-                }
                 if (!ifNumb(c))
                 {
                     int val_ = atoi(str.c_str()); 
                     q->push(new Lexems(str, value, val_));
                     st = q0;
-                    if (!ifNumb(c)) {
                         str = c;
                         q->push(new Lexems(str, op, -1));
-
-                    }
                 }
             }
         }
     }
+    if (ifNumb(c)) {
+        str = c;
+        int val_ = atoi(str.c_str());
+        q->push(new Lexems(str, value, val_));
+    }
+
     return q;
 }
 
 inline TQueue<Lexems*>* Lexems::revPolNot(TQueue<Lexems*>* l)
 {
-    string str;
     TQueue<Lexems*>* q = new TQueue<Lexems*>;
     TStruct<Lexems*>* stack = new TStack<Lexems*>;
-    Lexems tmp;
-    bool f = true;
+    Lexems* tmp;
+    State st = q0;
+    int count = 0;
     while (!l->isEmpty())
     {
-        tmp = *(l->pop());
-        if (tmp.getType() == value) {
-            int val_ = atoi(tmp.getS().c_str());
-            q->push(new Lexems(tmp.getS(), value, val_));
-        }
-        else {
-            /*if (tmp.prior(tmp.getS()) == 2) {
-                while (!stack->isEmpty() && f == true)
-                {
+        tmp = l->pop();
+        if (st == q0) {
+            if (tmp->getType() == value)
+            {
+                int val_ = atoi(tmp->getS().c_str());
+                q->push(new Lexems(tmp->getS(), value, val_));
+            }
+            else if (tmp->getS() == "(")
+            {
+                st = q1;
+            }
+            else if (prior(*tmp) == 1) {
+                stack->push(tmp);
+            }
+            else if (prior(*tmp) == 2)
+            {
+                if (stack->isEmpty())
+                    stack->push(tmp);
+                else {
                     Lexems* ltmp = stack->pop();
-                    if (prior(ltmp->getS()) <= 2)
-                        q->push(ltmp);
-                    else {
-                        stack->push(ltmp);
-                        f = false;
+                    while (!stack->isEmpty() && prior(*ltmp)>= 1)
+                    {
+                        q->push(new Lexems(ltmp->getS(), op, -1));
+                        ltmp = stack->pop();
+                        count++;                         
                     }
-                }*/
-
-                stack->push(new Lexems(tmp.getS(), op, -1));
-            }
-
-        }
-    
-    
-    while (!stack->isEmpty()) {   
-        tmp = *(stack->pop());
-        if (tmp.getS() == ")") {
-            tmp = *(stack->pop());
-            while (tmp.getS() != "(") {
-                q->push(new Lexems(tmp.getS(), op, -1));
-                tmp = *(stack->pop());
-            }
-        }
-        if (!stack->isEmpty()) 
-            if(tmp.getS() == "(")
-                tmp = *(stack->pop());
+                    if(prior(*ltmp) >= 1)
+                        q->push(new Lexems(ltmp->getS(), op, -1)); //"3+4*2-4"
+                    stack->push(tmp);
                     
-        q->push(new Lexems(tmp.getS(), op, -1));
+                    
+                }
+            }
 
+        }
+        else if (st == q1)
+        {
+            while (!stack->isEmpty() && tmp->getS() != ")") {
+                q->push(new Lexems(tmp->getS(), op, -1));
+                tmp = stack->pop();
+
+            }
+            if (!stack->isEmpty())
+                tmp = stack->pop();
+            st = q0;
+
+        }
+    
+    
     }
+
+    while (!stack->isEmpty())
+        q->push(new Lexems(stack->pop()->getS(), op, -1));
+
+
+        
+        
+    
+    
+    
+    
    
     
     
@@ -334,6 +358,46 @@ inline TQueue<Lexems*>* Lexems::revPolNot(TQueue<Lexems*>* l)
     
     
     return q;
+   /* tmp = *(l->pop());*/
+    //if (tmp.getType() == value) {
+    //    int val_ = atoi(tmp.getS().c_str());
+    //    q->push(new Lexems(tmp.getS(), value, val_));
+    //}
+    //else {
+    //    
+    //    if (tmp.getS()==")")
+    //    {
+    //        while (tmp.getS() != "(" ) {
+    //            q->push(new Lexems(tmp.getS(), op, -1));
+    //            tmp = *(stack->pop());
+    //        }
+    //    }
+    //    else {
+    //        if (tmp.prior(tmp) == 2 && !stack->isEmpty()) {
+    //            Lexems* ltmp = stack->pop();
+    //            if (tmp.prior(tmp) >= ltmp->prior(*ltmp))
+    //            {
+    //                q->push(ltmp);
+
+
+    //            }
+    //        }
+    //        stack->push(new Lexems(tmp.getS(), op, -1));
+    //    }
+    //    /*if (tmp.prior(tmp.getS()) == 2) {
+    //        while (!stack->isEmpty() && f == true)
+    //        {
+    //            Lexems* ltmp = stack->pop();
+    //            if (prior(ltmp->getS()) <= 2)
+    //                q->push(ltmp);
+    //            else {
+    //                stack->push(ltmp);
+    //                f = false;
+    //            }
+    //        }
+    //    }*/
+
+    //    }
 }
 
 inline TQueue<Lexems*>* Lexems::separatFull(string _s)
