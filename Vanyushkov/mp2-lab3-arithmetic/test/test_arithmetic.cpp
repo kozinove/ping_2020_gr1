@@ -46,6 +46,18 @@ TEST(Calculator, returns_zero_when_empty_example)
     ASSERT_EQ(0, c.doCalculator(""));
 }
 
+TEST(Calculator, can_accept_value_with_exp)
+{
+    Calculator c;
+    ASSERT_NO_THROW(c.doCalculator("1e+2"));
+}
+
+TEST(Calculator, can_accept_value_with_exp_and_return_it)
+{
+    Calculator c;
+    ASSERT_EQ(100, c.doCalculator("1e+2"));
+}
+
 TEST(Calculator, can_accept_two_values_and_operation)
 {
     Calculator c("2+2");
