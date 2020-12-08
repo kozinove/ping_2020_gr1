@@ -6,6 +6,21 @@
 using namespace std;
 
 
+enum class ExceptionType { stackisFull , 
+                           queueisFull, 
+                           stackisEmpty, 
+                           queueisEmpty,
+                           unidentified_symbol,
+};
+struct Exception
+{
+    ExceptionType error;
+    Exception(ExceptionType _error) { error = _error; }
+};
+
+
+
+
 template <class T>
 class TStruct
 {
@@ -60,7 +75,7 @@ template<class T>
 inline void TStack<T>::push(T v)
 {
     if (isFull())
-        throw "is Full";
+        throw Exception(ExceptionType::stackisFull);
     i++;
     mem[i] = v;
 }
@@ -69,7 +84,7 @@ template<class T>
 inline T TStack<T>::pop()
 {
     if (isEmpty())
-        throw "is Empty";
+        throw Exception(ExceptionType::stackisEmpty);
     T tmp = mem[i];
     i--;
     return tmp;
@@ -143,7 +158,7 @@ template<class T>
 inline void TQueue<T>::push(T v)
 {
     if (isFull())
-        throw "isFull";
+        throw Exception(ExceptionType::queueisFull);
     last = next(last);
     mem[last] = v;
 }
@@ -152,7 +167,7 @@ template<class T>
 inline T TQueue<T>::pop()
 {
     if (isEmpty())
-        throw "isEmpty";
+        throw Exception(ExceptionType::queueisEmpty);
     T tmp = mem[first];
     first = next(first);
     return tmp;
@@ -213,7 +228,7 @@ inline bool Lexems::ifNumb(char c)
     if ((c >= '0') && (c <= '9'))
         return true;
     if ((c != '+') && (c != '-') && (c != '(') && (c != ')') &&(c!=' ')&& (c != '*') && (c != '/'))
-        throw -1;
+        throw Exception(ExceptionType::unidentified_symbol);
     return false;
 }
 inline int Lexems::prior(Lexems tmp)
@@ -233,12 +248,14 @@ inline int Lexems::res(Lexems or , Lexems ol, string mark)
 {
     if (mark == "+")
         return atoi(ol.getS().c_str())+ atoi(or.getS().c_str());
-    if (mark == "-")
+    else if (mark == "-")
         return atoi(ol.getS().c_str()) - atoi(or.getS().c_str());
-    if (mark == "*")
+    else if (mark == "*")
         return atoi(ol.getS().c_str()) * atoi(or.getS().c_str());
-    if (mark == "/")
+    else if (mark == "/")
         return atoi(ol.getS().c_str()) / atoi(or.getS().c_str());
+    else throw Exception(ExceptionType::unidentified_symbol);
+
 
 
     
@@ -349,7 +366,6 @@ inline TQueue<Lexems*>* Lexems::revPolNot(TQueue<Lexems*>* l)
 
 inline int Lexems::separatFull(TQueue<Lexems*>* q)
 {
-    // add exp if queue is empty 
     TStruct<Lexems*>* stack = new TStack<Lexems*>;
     int result;
     Lexems* tmp, opR, opL;
